@@ -44,6 +44,7 @@ def fileCreate(serverName, guildName):
     try:
         wb = openpyxl.load_workbook(fileName)
         print('file exists')
+        return False
     except FileNotFoundError:
         print('File Not Found:')
         wb = openpyxl.Workbook()
@@ -119,7 +120,10 @@ class WindowClass(QMainWindow, form_class):
         print(serverName)
         guildName = self.input_guildName.text()
 
-        driver.get("https://maplestory.nexon.com/Ranking/World/Guild")
+        try:
+            driver.get("https://maplestory.nexon.com/Ranking/World/Guild")
+        except TimeoutError:
+            self.statusBar().showMessage('TimeoutError')
 
         driver.find_element_by_name('search_text').send_keys(guildName)
         driver.find_element_by_xpath('//*[@id="container"]/div/div/div[2]/div/span[1]/span').click()
@@ -136,6 +140,10 @@ class WindowClass(QMainWindow, form_class):
             articles = html.select("#container > div > div > div:nth-child(4) > div.rank_table_wrap > table > tbody > tr")
 
             try:
+                fileCreate(serverName, guildName)
+                if fileCreate(serverName, guildName) == False:
+                    self.statusBar().showMessage('파일이 이미 존재합니다.')
+                    break
                 for articleIndex in range(10):
                     nowServer = getServer(articleIndex)
                     if 'icon_'+str(checkServer(serverName))+'' in nowServer:
@@ -147,13 +155,15 @@ class WindowClass(QMainWindow, form_class):
                         driver.switch_to.window(driver.window_handles[-1])
                         driver.implicitly_wait(5)
 
-                        fileCreate(serverName, guildName)
                         guildCrawl()
+                        time.sleep(0.2)
                         break
             except IndexError:
                 print('데이터가 더이상 없습니다.')
                 wb.save(fileName)
                 break
+            except TimeoutError:
+                self.statusBar().showMessage('TimeoutError')
             
             print('while 탈출')
             wb.save(fileName)
@@ -164,11 +174,14 @@ class WindowClass(QMainWindow, form_class):
 
         for i in list(sheet.columns)[0]:
             nickname = i.value
-            if ci.checkGuild(nickname, guildName) == False:
-                self.guildMembers_changed.append(nickname)
+            check, newGuildName, changeCount = ci.checkGuild(nickname, guildName)
+            if check == False:
+                changed = nickname+' -> '+newGuildName
+                self.guildMembers_changed.append(changed)
+                self.changeCount.setText(str(changeCount)+' 명')
 
             print('checkInfo Finished')
-            time.sleep(1)
+            time.sleep(0.1)
 
     def exit(self):
         sys.exit(0)
