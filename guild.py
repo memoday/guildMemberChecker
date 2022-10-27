@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import checkInfo as ci
 
+
 options = webdriver.ChromeOptions()
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
 options.add_argument('User-Agent= Mozilla/5.0')
@@ -167,7 +168,15 @@ class WindowClass(QMainWindow, form_class):
 
     def fileLoad(self):
         global sheet, oldGuildList
-        fname= QFileDialog.getOpenFileName(self,'','','Excel(*.xlsx) ;;All File(*)')
+        fname = QFileDialog.getOpenFileName(self,'','','Excel(*.xlsx) ;;All File(*)')
+        
+        loadedFile = QFileInfo(fname[0]).fileName()
+        print(loadedFile)
+        self.statusBar().showMessage('파일을 불러왔습니다. '+loadedFile)
+        loadedFileServer, loadedFileGuild, loadedFileDate = loadedFile.split('_')
+        self.input_guildName.setText(loadedFileGuild)
+        self.combo_serverName.setCurrentText(loadedFileServer)
+
         count = 0
         oldGuildList = []
         if fname[0]:
