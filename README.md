@@ -21,6 +21,13 @@
 <br>
 <img src="https://user-images.githubusercontent.com/74040890/198201329-2c885ead-027c-4f40-8dc9-a6bad621d2b8.png" width="50%" height="50%">
 
+<br>
+
+## 변동사항 확인 예시
+
+<img src="https://user-images.githubusercontent.com/74040890/198239667-1152bbdf-7a35-45e1-bd32-e43c85d0b1cd.png" width="50%" height="50%">
+
+
 
 ```
 pyinstaller -
