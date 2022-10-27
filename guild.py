@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 import time
 from selenium import webdriver
 import os, sys
@@ -164,18 +165,23 @@ class WindowClass(QMainWindow, form_class):
         self.btn_start.clicked.connect(self.main)
         self.btn_exit.clicked.connect(self.exit)
         self.btn_load.clicked.connect(self.fileLoad)
-        self.btn_check.clicked.connect(self.checkInfo2)
+        self.btn_check.clicked.connect(self.checkInfo)
 
     def fileLoad(self):
         global sheet, oldGuildList
         fname = QFileDialog.getOpenFileName(self,'','','Excel(*.xlsx) ;;All File(*)')
         
+        self.guildMembers_changed.setText('')
+        self.changeCount.setText('- 명')
         loadedFile = QFileInfo(fname[0]).fileName()
         print(loadedFile)
         self.statusBar().showMessage('파일을 불러왔습니다. '+loadedFile)
-        loadedFileServer, loadedFileGuild, loadedFileDate = loadedFile.split('_')
-        self.input_guildName.setText(loadedFileGuild)
-        self.combo_serverName.setCurrentText(loadedFileServer)
+        try:
+            loadedFileServer, loadedFileGuild, loadedFileDate = loadedFile.split('_')
+            self.input_guildName.setText(loadedFileGuild)
+            self.combo_serverName.setCurrentText(loadedFileServer)
+        except ValueError:
+            pass
 
         count = 0
         oldGuildList = []
@@ -195,6 +201,7 @@ class WindowClass(QMainWindow, form_class):
         serverName = str(self.combo_serverName.currentText())
         print(serverName)
 
+        self.guildMembers_changed.setText('')
         guildName = self.input_guildName.text()
         if guildName == "":
             self.statusBar().showMessage('추출하기: 길드 이름을 입력해주세요')
@@ -237,25 +244,29 @@ class WindowClass(QMainWindow, form_class):
 
                         guildCrawl()
                         time.sleep(0.3)
+                        
+                        self.statusBar().showMessage('추출하기 완료. '+guildName)
                         break
             except IndexError:
                 print('데이터가 더이상 없습니다.')
                 wb.save(fileName)
+                self.statusBar().showMessage('추출하기 완료. '+guildName)
                 break
             except TimeoutError:
                 self.statusBar().showMessage('TimeoutError')
             
             print('while 탈출')
             wb.save(fileName)
+            self.statusBar().showMessage('추출하기 완료. '+guildName)
             break
     
     
-    def checkInfo2(self):
+    def checkInfo(self):
         serverName = str(self.combo_serverName.currentText())
-        print('checkInfo2')
+        print('checkInfo')
         self.guildMembers_changed.setText('')
-
         guildName = self.input_guildName.text()
+
         if guildName == "":
             self.statusBar().showMessage('변동사항확인: 길드 이름을 입력해주세요')
             return
@@ -293,47 +304,19 @@ class WindowClass(QMainWindow, form_class):
                         tempGuildCrawl()
                         time.sleep(0.3)
                         finalCheck(self, guildName)
+                        self.statusBar().showMessage('변동사항 확인 완료. '+guildName)
                         break
             except IndexError:
                 print('데이터가 더이상 없습니다.')
                 finalCheck(self, guildName)
+                self.statusBar().showMessage('변동사항 확인 완료. '+guildName)
                 break
             except TimeoutError:
                 self.statusBar().showMessage('TimeoutError')
             
             finalCheck(self, guildName)
-            print('while 탈출')
+            self.statusBar().showMessage('변동사항 확인 완료. '+guildName)
             break
-
-
-    def checkInfo(self):
-        guildName = self.input_guildName.text()
-        if guildName == "":
-            self.statusBar().showMessage('변동사항 확인: 길드 이름을 입력해주세요')
-            return
-
-        changeCount = 0
-        self.guildMembers_changed.setText('')
-        for i in list(sheet.columns)[0]:
-            nickname = i.value
-            check, newGuildName = ci.checkGuild(nickname, guildName)
-            if check == False:
-                changeCount += 1
-
-                if newGuildName == '':
-                    changed = '[탈퇴]'+nickname
-                    self.guildMembers_changed.append(changed)
-                else:
-                    changed = '[이전]'+nickname+' -> '+newGuildName
-                    self.guildMembers_changed.append(changed)
-
-
-                changed = nickname+' -> '+newGuildName
-                self.guildMembers_changed.append(changed)
-                self.changeCount.setText(str(changeCount)+' 명')
-
-            print('checkInfo Finished')
-            time.sleep(0.3)
 
     def exit(self):
         sys.exit(0)
