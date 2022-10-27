@@ -16,6 +16,7 @@ options.add_experimental_option("excludeSwitches", ["enable-logging"])
 options.add_argument('User-Agent= Mozilla/5.0')
 options.add_argument('headless') #크롬창 표시 금지
 
+
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
@@ -23,9 +24,11 @@ def resource_path(relative_path):
 driver_path = resource_path('chromedriver.exe')
 icon = resource_path('memo.ico')
 
+icon = resource_path('assets/memo.ico')
+form = resource_path('ui/main.ui')
+
 driver = webdriver.Chrome(options=options, executable_path=driver_path)
 
-form = resource_path('main.ui')
 form_class = uic.loadUiType(form)[0]
 
 def checkServer(serverName):
