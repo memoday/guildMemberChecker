@@ -35,13 +35,13 @@ def checkGuild(nickname, guildName):
 
     newGuild = html.select_one("tr.search_com_chk > td:nth-child(6)").text
 
-    changeCount = 0
-
     print(nickname, newGuild)
     if newGuild != guildName:
-        changeCount += 1
-        return False, newGuild, changeCount
-    return True,newGuild, changeCount
+        return False, newGuild
+    return True,newGuild
+
+def checkGuildByExcel(nickname,guildName):
+    return
 
 def checkAchievements():
     return

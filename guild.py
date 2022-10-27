@@ -50,6 +50,39 @@ def fileCreate(serverName, guildName):
         wb = openpyxl.Workbook()
     ws1 = wb.active
 
+def tempFileCreate():
+
+    global tempx, tempwb
+
+    tempwb = openpyxl.Workbook()
+    tempx = tempwb.active
+
+def tempGuildCrawl():
+
+    page = 1
+    membersCount = 0
+
+    nowURL = driver.current_url
+
+    global guildlist
+    guildlist = []
+
+    while True:
+
+        newURL = nowURL+'&orderby=0&page='+str(page)+''
+        raw = requests.get(newURL,headers={'User-Agent':'Mozilla/5.0'})
+        html = BeautifulSoup(raw.text,"html.parser")   
+        members = html.select('#container > div > div > table > tbody > tr')
+        
+        for member in range(20):
+            membersCount += 1
+            nickName = members[member].select_one('td.left > dl > dt > a').text
+            print(nickName)
+            guildlist.append(nickName)
+        page += 1
+        time.sleep(1)
+
+
 def guildCrawl():
 
     page = 1
@@ -70,6 +103,7 @@ def guildCrawl():
             print(nickName)
             ws1.append([nickName])
         page += 1
+        time.sleep(1)
 
 def getServer(articleIndex):
 
@@ -79,6 +113,35 @@ def getServer(articleIndex):
         time.sleep(1)
         
         return server
+
+def finalCheck(self, guildName):
+    set1 = set(guildlist)
+    set2 = set(oldGuildList)
+    changeCount = 0
+    
+    guildIn = list(set1 - set2)
+    guildOut = list(set2 - set1)
+
+    for i in range(len(guildIn)):
+        print('[신규]',guildIn[i])
+        changed = ('[신규] '+guildIn[i])
+        self.guildMembers_changed.append(changed)
+        changeCount += 1
+
+    for i in range(len(guildOut)):
+        check, newGuild = ci.checkGuild(guildOut[i], guildName)
+        if newGuild == '':
+            print('[탈퇴]', guildOut[i])
+            changed = ('[탈퇴] '+guildOut[i])
+            self.guildMembers_changed.append(changed)
+            changeCount += 1
+        else:
+            print('[이전]', guildOut[i],'-> ',newGuild)
+            changed = ('[이전] '+guildOut[i]+' -> '+newGuild)
+            self.guildMembers_changed.append(changed)
+            changeCount += 1
+    self.changeCount.setText(str(changeCount)+' 명')
+            
 
 class WindowClass(QMainWindow, form_class):
 
@@ -95,15 +158,15 @@ class WindowClass(QMainWindow, form_class):
 
         #버튼 기능
         self.btn_start.clicked.connect(self.main)
-        self.input_guildName.returnPressed.connect(self.main)
         self.btn_exit.clicked.connect(self.exit)
         self.btn_load.clicked.connect(self.fileLoad)
-        self.btn_check.clicked.connect(self.checkInfo)
+        self.btn_check.clicked.connect(self.checkInfo2)
 
     def fileLoad(self):
-        global sheet
+        global sheet, oldGuildList
         fname= QFileDialog.getOpenFileName(self,'','','Excel(*.xlsx) ;;All File(*)')
         count = 0
+        oldGuildList = []
         if fname[0]:
             f = open(fname[0],'r')
             data = openpyxl.load_workbook(filename= fname[0],data_only=True)
@@ -112,13 +175,18 @@ class WindowClass(QMainWindow, form_class):
             for i in list(sheet.columns)[0]:
                 count += 1
                 self.guildMembers.append(i.value)
+                oldGuildList.append(i.value)
             self.count.setText(str(count)+' 명')
 
     def main(self):
 
         serverName = str(self.combo_serverName.currentText())
         print(serverName)
+
         guildName = self.input_guildName.text()
+        if guildName == "":
+            self.statusBar().showMessage('추출하기: 길드 이름을 입력해주세요')
+            return
 
         try:
             driver.get("https://maplestory.nexon.com/Ranking/World/Guild")
@@ -156,7 +224,7 @@ class WindowClass(QMainWindow, form_class):
                         driver.implicitly_wait(5)
 
                         guildCrawl()
-                        time.sleep(0.2)
+                        time.sleep(0.3)
                         break
             except IndexError:
                 print('데이터가 더이상 없습니다.')
@@ -168,20 +236,92 @@ class WindowClass(QMainWindow, form_class):
             print('while 탈출')
             wb.save(fileName)
             break
+    
+    
+    def checkInfo2(self):
+        serverName = str(self.combo_serverName.currentText())
+        print('checkInfo2')
+        self.guildMembers_changed.setText('')
+
+        guildName = self.input_guildName.text()
+        if guildName == "":
+            self.statusBar().showMessage('변동사항확인: 길드 이름을 입력해주세요')
+            return
+
+        try:
+            driver.get("https://maplestory.nexon.com/Ranking/World/Guild")
+        except TimeoutError:
+            self.statusBar().showMessage('TimeoutError')
+
+        driver.find_element_by_name('search_text').send_keys(guildName)
+        driver.find_element_by_xpath('//*[@id="container"]/div/div/div[2]/div/span[1]/span').click()
+        time.sleep(1)
+        
+        while True:
+            global articles
+
+            nowURL = driver.current_url
+            raw = requests.get(nowURL,headers={'User-Agent':'Mozilla/5.0'})
+            html = BeautifulSoup(raw.text,"html.parser")
+
+            articles = html.select("#container > div > div > div:nth-child(4) > div.rank_table_wrap > table > tbody > tr")
+
+            try:
+                for articleIndex in range(10):
+                    nowServer = getServer(articleIndex)
+                    if 'icon_'+str(checkServer(serverName))+'' in nowServer:
+                        driver.implicitly_wait(5)
+
+                        driver.find_element_by_xpath('//*[@id="container"]/div/div/div[3]/div[1]/table/tbody/tr['+str(articleIndex+1)+']/td[2]/span/a').click()
+                        driver.implicitly_wait(5)
+
+                        driver.switch_to.window(driver.window_handles[-1])
+                        driver.implicitly_wait(5)
+
+                        tempGuildCrawl()
+                        time.sleep(0.3)
+                        finalCheck(self, guildName)
+                        break
+            except IndexError:
+                print('데이터가 더이상 없습니다.')
+                finalCheck(self, guildName)
+                break
+            except TimeoutError:
+                self.statusBar().showMessage('TimeoutError')
+            
+            finalCheck(self, guildName)
+            print('while 탈출')
+            break
+
 
     def checkInfo(self):
         guildName = self.input_guildName.text()
+        if guildName == "":
+            self.statusBar().showMessage('변동사항 확인: 길드 이름을 입력해주세요')
+            return
 
+        changeCount = 0
+        self.guildMembers_changed.setText('')
         for i in list(sheet.columns)[0]:
             nickname = i.value
-            check, newGuildName, changeCount = ci.checkGuild(nickname, guildName)
+            check, newGuildName = ci.checkGuild(nickname, guildName)
             if check == False:
+                changeCount += 1
+
+                if newGuildName == '':
+                    changed = '[탈퇴]'+nickname
+                    self.guildMembers_changed.append(changed)
+                else:
+                    changed = '[이전]'+nickname+' -> '+newGuildName
+                    self.guildMembers_changed.append(changed)
+
+
                 changed = nickname+' -> '+newGuildName
                 self.guildMembers_changed.append(changed)
                 self.changeCount.setText(str(changeCount)+' 명')
 
             print('checkInfo Finished')
-            time.sleep(0.1)
+            time.sleep(0.3)
 
     def exit(self):
         sys.exit(0)
