@@ -32,13 +32,15 @@ def checkGuild(nickname, guildName):
     url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname
     raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
     html = BeautifulSoup(raw.text,"html.parser")
+    try:
+        newGuild = html.select_one("tr.search_com_chk > td:nth-child(6)").text
 
-    newGuild = html.select_one("tr.search_com_chk > td:nth-child(6)").text
-
-    print(nickname, newGuild)
-    if newGuild != guildName:
-        return False, newGuild
-    return True,newGuild
+        print(nickname, newGuild)
+        if newGuild != guildName:
+            return False, newGuild
+        return True,newGuild
+    except AttributeError:
+        return True, guildName
 
 def checkGuildByExcel(nickname,guildName):
     return

@@ -1,4 +1,3 @@
-from multiprocessing.sharedctypes import Value
 import time
 from selenium import webdriver
 import os, sys
