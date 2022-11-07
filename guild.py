@@ -34,8 +34,6 @@ def resource_path(relative_path):
 icon = resource_path('assets/memo.ico')
 form = resource_path('ui/main.ui')
 
-driver = webdriver.Chrome(options=options, executable_path=driver_path)
-
 form_class = uic.loadUiType(form)[0]
 
 def checkServer(serverName):
@@ -92,8 +90,7 @@ def tempGuildCrawl():
         page += 1
         time.sleep(1)
 
-
-def guildCrawl():
+def guildCrawl(driver):
 
     page = 1
     membersCount = 0
@@ -152,6 +149,81 @@ def finalCheck(self, guildName):
             changeCount += 1
     self.changeCount.setText(str(changeCount)+' 명')
             
+class Thread1(QThread):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.parent = parent
+        
+    def run(self):
+
+        self.parent.btn_start.setDisabled(True)
+
+        driver = webdriver.Chrome(options=options, executable_path=driver_path)
+
+        serverName = str(self.parent.combo_serverName.currentText())
+        print(serverName)
+
+        guildName = self.parent.input_guildName.text()
+        if guildName == "":
+            self.parent.statusBar().showMessage('추출하기: 길드 이름을 입력해주세요')
+            return
+
+        try:
+            driver.get("https://maplestory.nexon.com/Ranking/World/Guild")
+        except TimeoutError:
+            self.parent.statusBar().showMessage('TimeoutError')
+
+        driver.find_element_by_name('search_text').send_keys(guildName)
+        driver.find_element_by_xpath('//*[@id="container"]/div/div/div[2]/div/span[1]/span').click()
+        time.sleep(1)
+
+        
+        while True:
+            global articles
+
+            nowURL = driver.current_url
+            raw = requests.get(nowURL,headers={'User-Agent':'Mozilla/5.0'})
+            html = BeautifulSoup(raw.text,"html.parser")
+
+            articles = html.select("#container > div > div > div:nth-child(4) > div.rank_table_wrap > table > tbody > tr")
+
+            try:
+                fileCreate(serverName, guildName)
+                if fileCreate(serverName, guildName) == False:
+                    self.parent.statusBar().showMessage('파일이 이미 존재합니다.')
+                    break
+                for articleIndex in range(10):
+                    nowServer = getServer(articleIndex)
+                    if 'icon_'+str(checkServer(serverName))+'' in nowServer:
+                        driver.implicitly_wait(5)
+
+                        driver.find_element_by_xpath('//*[@id="container"]/div/div/div[3]/div[1]/table/tbody/tr['+str(articleIndex+1)+']/td[2]/span/a').click()
+                        driver.implicitly_wait(5)
+
+                        driver.switch_to.window(driver.window_handles[-1])
+                        driver.implicitly_wait(5)
+
+                        guildCrawl(driver)
+                        time.sleep(0.3)
+                        
+                        self.parent.statusBar().showMessage('추출하기 완료. '+guildName)
+                        self.parent.btn_start.setEnabled(True)
+                        break
+            except IndexError:
+                print('데이터가 더이상 없습니다.')
+                wb.save(fileName)
+                self.parent.statusBar().showMessage('추출하기 완료. '+guildName)
+                self.parent.btn_start.setEnabled(True)
+                break
+            except TimeoutError:
+                self.parent.statusBar().showMessage('TimeoutError')
+                self.parent.btn_start.setEnabled(True)
+            
+            print('while 탈출')
+            wb.save(fileName)
+            self.statusBar().showMessage('추출하기 완료. '+guildName)
+            self.parent.btn_start.setEnabled(True)
+            break
 
 class WindowClass(QMainWindow, form_class):
 
@@ -171,6 +243,11 @@ class WindowClass(QMainWindow, form_class):
         self.btn_exit.clicked.connect(self.exit)
         self.btn_load.clicked.connect(self.fileLoad)
         self.btn_check.clicked.connect(self.checkInfo)
+    
+    def main(self):
+        self.guildMembers_changed.setText('')
+        x = Thread1(self)
+        x.start()
 
     def fileLoad(self):
         global sheet, oldGuildList
@@ -201,72 +278,8 @@ class WindowClass(QMainWindow, form_class):
                 oldGuildList.append(i.value)
             self.count.setText(str(count)+' 명')
 
-    def main(self):
-
-        serverName = str(self.combo_serverName.currentText())
-        print(serverName)
-
-        self.guildMembers_changed.setText('')
-        guildName = self.input_guildName.text()
-        if guildName == "":
-            self.statusBar().showMessage('추출하기: 길드 이름을 입력해주세요')
-            return
-
-        try:
-            driver.get("https://maplestory.nexon.com/Ranking/World/Guild")
-        except TimeoutError:
-            self.statusBar().showMessage('TimeoutError')
-
-        driver.find_element_by_name('search_text').send_keys(guildName)
-        driver.find_element_by_xpath('//*[@id="container"]/div/div/div[2]/div/span[1]/span').click()
-        time.sleep(1)
-
-        
-        while True:
-            global articles
-
-            nowURL = driver.current_url
-            raw = requests.get(nowURL,headers={'User-Agent':'Mozilla/5.0'})
-            html = BeautifulSoup(raw.text,"html.parser")
-
-            articles = html.select("#container > div > div > div:nth-child(4) > div.rank_table_wrap > table > tbody > tr")
-
-            try:
-                fileCreate(serverName, guildName)
-                if fileCreate(serverName, guildName) == False:
-                    self.statusBar().showMessage('파일이 이미 존재합니다.')
-                    break
-                for articleIndex in range(10):
-                    nowServer = getServer(articleIndex)
-                    if 'icon_'+str(checkServer(serverName))+'' in nowServer:
-                        driver.implicitly_wait(5)
-
-                        driver.find_element_by_xpath('//*[@id="container"]/div/div/div[3]/div[1]/table/tbody/tr['+str(articleIndex+1)+']/td[2]/span/a').click()
-                        driver.implicitly_wait(5)
-
-                        driver.switch_to.window(driver.window_handles[-1])
-                        driver.implicitly_wait(5)
-
-                        guildCrawl()
-                        time.sleep(0.3)
-                        
-                        self.statusBar().showMessage('추출하기 완료. '+guildName)
-                        break
-            except IndexError:
-                print('데이터가 더이상 없습니다.')
-                wb.save(fileName)
-                self.statusBar().showMessage('추출하기 완료. '+guildName)
-                break
-            except TimeoutError:
-                self.statusBar().showMessage('TimeoutError')
-            
-            print('while 탈출')
-            wb.save(fileName)
-            self.statusBar().showMessage('추출하기 완료. '+guildName)
-            break
-    
-    
     def checkInfo(self):
+
         serverName = str(self.combo_serverName.currentText())
         print('checkInfo')
         self.guildMembers_changed.setText('')
@@ -327,6 +340,7 @@ class WindowClass(QMainWindow, form_class):
         sys.exit(0)
 
 if __name__ == "__main__":
+    driver = webdriver.Chrome(options=options, executable_path=driver_path)
     app = QApplication(sys.argv) 
     myWindow = WindowClass() 
     myWindow.show()
