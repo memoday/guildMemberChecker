@@ -15,12 +15,10 @@ import chromedriver_autoinstaller
 chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
 driver_path = f'./{chrome_ver}/chromedriver.exe'
 if os.path.exists(driver_path):
-    print(f"chrome driver is insatlled: {driver_path}")
+    print(f"chromedriver is installed: {driver_path}")
 else:
-    print('chromdriver를 설치합니다')
+    print('installing chromedriver')
     chromedriver_autoinstaller.install(cwd=True)
-    path = chromedriver_autoinstaller.install(cwd=True)
-
 
 options = webdriver.ChromeOptions()
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
