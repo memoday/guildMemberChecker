@@ -10,6 +10,16 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import checkInfo as ci
+import chromedriver_autoinstaller
+
+chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
+driver_path = f'./{chrome_ver}/chromedriver.exe'
+if os.path.exists(driver_path):
+    print(f"chrome driver is insatlled: {driver_path}")
+else:
+    print('chromdriver를 설치합니다')
+    chromedriver_autoinstaller.install(cwd=True)
+    path = chromedriver_autoinstaller.install(cwd=True)
 
 
 options = webdriver.ChromeOptions()
@@ -22,8 +32,6 @@ def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, relative_path)
-driver_path = resource_path('chromedriver.exe')
-icon = resource_path('memo.ico')
 
 icon = resource_path('assets/memo.ico')
 form = resource_path('ui/main.ui')
