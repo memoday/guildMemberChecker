@@ -136,10 +136,16 @@ def finalCheck(self, guildName):
         changeCount += 1
 
     for i in range(len(guildOut)):
+        time.sleep(0.3)
         check, newGuild = ci.checkGuild(guildOut[i], guildName)
         if newGuild == '':
             print('[탈퇴]', guildOut[i])
             changed = ('[탈퇴] '+guildOut[i])
+            self.guildMembers_changed.append(changed)
+            changeCount += 1
+        elif newGuild == guildName:
+            print('[닉변/캐삭]',guildOut[i])
+            changed = ('[닉변/캐삭] '+guildOut[i])
             self.guildMembers_changed.append(changed)
             changeCount += 1
         else:
@@ -255,9 +261,11 @@ class WindowClass(QMainWindow, form_class):
         
         self.guildMembers_changed.setText('')
         self.changeCount.setText('- 명')
+
         loadedFile = QFileInfo(fname[0]).fileName()
-        print(loadedFile)
-        self.statusBar().showMessage('파일을 불러왔습니다. '+loadedFile)
+        if loadedFile != "":
+            self.statusBar().showMessage('파일을 불러왔습니다. '+loadedFile)
+
         try:
             loadedFileServer, loadedFileGuild, loadedFileDate = loadedFile.split('_')
             self.input_guildName.setText(loadedFileGuild)

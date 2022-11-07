@@ -35,7 +35,6 @@ def checkGuild(nickname, guildName):
     try:
         newGuild = html.select_one("tr.search_com_chk > td:nth-child(6)").text
 
-        print(nickname, newGuild)
         if newGuild != guildName:
             return False, newGuild
         return True,newGuild
