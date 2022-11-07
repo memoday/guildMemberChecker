@@ -18,7 +18,7 @@ if os.path.exists(driver_path):
     print(f"chromedriver is installed: {driver_path}")
 else:
     print('installing chromedriver')
-    chromedriver_autoinstaller.install(cwd=True)
+    chromedriver_autoinstaller.install(cwd=True) #chromedriver 크롬 버전에 맞춰 설치
 
 options = webdriver.ChromeOptions()
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
@@ -149,7 +149,7 @@ def finalCheck(self, guildName):
             changeCount += 1
     self.changeCount.setText(str(changeCount)+' 명')
             
-class Thread1(QThread):
+class execute(QThread):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
@@ -246,7 +246,7 @@ class WindowClass(QMainWindow, form_class):
     
     def main(self):
         self.guildMembers_changed.setText('')
-        x = Thread1(self)
+        x = execute(self)
         x.start()
 
     def fileLoad(self):
@@ -334,7 +334,6 @@ class WindowClass(QMainWindow, form_class):
             
             finalCheck(self, guildName)
             self.statusBar().showMessage('변동사항 확인 완료. '+guildName)
-            break
 
     def exit(self):
         sys.exit(0)
