@@ -165,8 +165,6 @@ class execute(QThread):
 
         self.parent.btn_start.setDisabled(True)
 
-        driver = webdriver.Chrome(options=options, executable_path=driver_path)
-
         serverName = str(self.parent.combo_serverName.currentText())
         print(serverName)
 
@@ -174,6 +172,8 @@ class execute(QThread):
         if guildName == "":
             self.parent.statusBar().showMessage('추출하기: 길드 이름을 입력해주세요')
             return
+
+        driver = webdriver.Chrome(options=options, executable_path=driver_path)
 
         try:
             driver.get("https://maplestory.nexon.com/Ranking/World/Guild")
@@ -184,7 +184,6 @@ class execute(QThread):
         driver.find_element_by_xpath('//*[@id="container"]/div/div/div[2]/div/span[1]/span').click()
         time.sleep(1)
 
-        
         while True:
             global articles
 
@@ -198,8 +197,6 @@ class execute(QThread):
                 fileCreate(serverName, guildName)
                 if fileCreate(serverName, guildName) == False:
                     self.parent.statusBar().showMessage('파일이 이미 존재합니다.')
-                    self.parent.btn_start.setEnabled(True)
-                    driver.quit()
                     break
                 for articleIndex in range(10):
                     nowServer = getServer(articleIndex)
@@ -216,31 +213,25 @@ class execute(QThread):
                         time.sleep(0.3)
                         
                         self.parent.statusBar().showMessage('추출하기 완료. '+guildName)
-                        self.parent.btn_start.setEnabled(True)
-                        driver.quit()
                         break
             except IndexError:
                 print('데이터가 더이상 없습니다.')
                 wb.save(fileName)
                 self.parent.statusBar().showMessage('추출하기 완료. '+guildName)
-                self.parent.btn_start.setEnabled(True)
-                driver.quit()
                 break
             except TimeoutError:
                 self.parent.statusBar().showMessage('TimeoutError')
+            finally:
                 self.parent.btn_start.setEnabled(True)
+                driver.close()
                 driver.quit()
-            
+     
             print('while 탈출')
             wb.save(fileName)
             self.statusBar().showMessage('추출하기 완료. '+guildName)
             self.parent.btn_start.setEnabled(True)
             driver.quit()
             break
-
-    def end(self):
-        self.quit()
-        self.sleep(1)
 
 class WindowClass(QMainWindow, form_class):
 
@@ -265,7 +256,6 @@ class WindowClass(QMainWindow, form_class):
         self.guildMembers_changed.setText('')
         x = execute(self)
         x.start()
-        x.end()
 
     def fileLoad(self): #파일 불러오기
         global sheet, oldGuildList
@@ -301,8 +291,7 @@ class WindowClass(QMainWindow, form_class):
             except IndexError:
                 self.statusBar().showMessage('불러올 길드원이 없습니다. '+loadedFile)
 
-    def checkInfo(self):
-        driver = webdriver.Chrome(options=options, executable_path=driver_path)
+    def checkInfo(self): #변동사항 확인
         
         serverName = str(self.combo_serverName.currentText())
         print('checkInfo')
@@ -311,8 +300,9 @@ class WindowClass(QMainWindow, form_class):
 
         if guildName == "":
             self.statusBar().showMessage('변동사항확인: 길드 이름을 입력해주세요')
-            driver.quit()
             return
+
+        driver = webdriver.Chrome(options=options, executable_path=driver_path)
 
         try:
             driver.get("https://maplestory.nexon.com/Ranking/World/Guild")
@@ -348,16 +338,16 @@ class WindowClass(QMainWindow, form_class):
                         time.sleep(0.3)
                         finalCheck(self, guildName)
                         self.statusBar().showMessage('변동사항 확인 완료. '+guildName)
-                        driver.quit()
                         break
             except IndexError:
                 print('데이터가 더이상 없습니다.')
                 finalCheck(self, guildName)
                 self.statusBar().showMessage('변동사항 확인 완료. '+guildName)
-                driver.quit()
                 break
             except TimeoutError:
                 self.statusBar().showMessage('TimeoutError')
+            finally:
+                driver.close()
                 driver.quit()
             
             finalCheck(self, guildName)
@@ -365,7 +355,7 @@ class WindowClass(QMainWindow, form_class):
             driver.quit()
 
     def exit(self):
-        os.system("taskkill /im chromedriver.exe")
+        os.system("taskkill /f /im chromedriver.exe") #chomrdriver.exe 강제종료
         sys.exit(0)
 
 if __name__ == "__main__":
