@@ -65,7 +65,7 @@ def tempFileCreate():
     tempwb = openpyxl.Workbook()
     tempx = tempwb.active
 
-def tempGuildCrawl():
+def tempGuildCrawl(driver):
 
     page = 1
     membersCount = 0
@@ -117,7 +117,7 @@ def getServer(articleIndex):
 
         server = articles[articleIndex].select_one('a > span > img')['src']
         
-        print('getServer Returned')
+        print('getServer Returned: '+server)
         time.sleep(1)
         
         return server
@@ -155,7 +155,7 @@ def finalCheck(self, guildName):
             self.guildMembers_changed.append(changed)
             changeCount += 1
     self.changeCount.setText(str(changeCount)+' 명')
-            
+
 class execute(QThread):
     def __init__(self, parent):
         super().__init__(parent)
@@ -199,6 +199,7 @@ class execute(QThread):
                 if fileCreate(serverName, guildName) == False:
                     self.parent.statusBar().showMessage('파일이 이미 존재합니다.')
                     self.parent.btn_start.setEnabled(True)
+                    driver.quit()
                     break
                 for articleIndex in range(10):
                     nowServer = getServer(articleIndex)
@@ -216,23 +217,27 @@ class execute(QThread):
                         
                         self.parent.statusBar().showMessage('추출하기 완료. '+guildName)
                         self.parent.btn_start.setEnabled(True)
+                        driver.quit()
                         break
             except IndexError:
                 print('데이터가 더이상 없습니다.')
                 wb.save(fileName)
                 self.parent.statusBar().showMessage('추출하기 완료. '+guildName)
                 self.parent.btn_start.setEnabled(True)
+                driver.quit()
                 break
             except TimeoutError:
                 self.parent.statusBar().showMessage('TimeoutError')
                 self.parent.btn_start.setEnabled(True)
+                driver.quit()
             
             print('while 탈출')
             wb.save(fileName)
             self.statusBar().showMessage('추출하기 완료. '+guildName)
             self.parent.btn_start.setEnabled(True)
+            driver.quit()
             break
-        
+
     def end(self):
         self.quit()
         self.sleep(1)
@@ -287,14 +292,18 @@ class WindowClass(QMainWindow, form_class):
             data = openpyxl.load_workbook(filename= fname[0],data_only=True)
             sheet = data['Sheet']
             
-            for i in list(sheet.columns)[0]:
-                count += 1
-                self.guildMembers.append(i.value)
-                oldGuildList.append(i.value)
-            self.count.setText(str(count)+' 명')
+            try:
+                for i in list(sheet.columns)[0]:
+                    count += 1
+                    self.guildMembers.append(i.value)
+                    oldGuildList.append(i.value)
+                self.count.setText(str(count)+' 명')
+            except IndexError:
+                self.statusBar().showMessage('불러올 길드원이 없습니다. '+loadedFile)
 
     def checkInfo(self):
-
+        driver = webdriver.Chrome(options=options, executable_path=driver_path)
+        
         serverName = str(self.combo_serverName.currentText())
         print('checkInfo')
         self.guildMembers_changed.setText('')
@@ -302,6 +311,7 @@ class WindowClass(QMainWindow, form_class):
 
         if guildName == "":
             self.statusBar().showMessage('변동사항확인: 길드 이름을 입력해주세요')
+            driver.quit()
             return
 
         try:
@@ -334,27 +344,31 @@ class WindowClass(QMainWindow, form_class):
                         driver.switch_to.window(driver.window_handles[-1])
                         driver.implicitly_wait(5)
 
-                        tempGuildCrawl()
+                        tempGuildCrawl(driver)
                         time.sleep(0.3)
                         finalCheck(self, guildName)
                         self.statusBar().showMessage('변동사항 확인 완료. '+guildName)
+                        driver.quit()
                         break
             except IndexError:
                 print('데이터가 더이상 없습니다.')
                 finalCheck(self, guildName)
                 self.statusBar().showMessage('변동사항 확인 완료. '+guildName)
+                driver.quit()
                 break
             except TimeoutError:
                 self.statusBar().showMessage('TimeoutError')
+                driver.quit()
             
             finalCheck(self, guildName)
             self.statusBar().showMessage('변동사항 확인 완료. '+guildName)
+            driver.quit()
 
     def exit(self):
+        os.system("taskkill /im chromedriver.exe")
         sys.exit(0)
 
 if __name__ == "__main__":
-    driver = webdriver.Chrome(options=options, executable_path=driver_path)
     app = QApplication(sys.argv) 
     myWindow = WindowClass() 
     myWindow.show()
