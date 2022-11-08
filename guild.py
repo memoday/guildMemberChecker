@@ -90,7 +90,7 @@ def tempGuildCrawl():
         page += 1
         time.sleep(1)
 
-def guildCrawl(driver):
+def guildCrawl(driver,self):
 
     page = 1
     membersCount = 0
@@ -109,6 +109,7 @@ def guildCrawl(driver):
             nickName = members[member].select_one('td.left > dl > dt > a').text
             print(nickName)
             ws1.append([nickName])
+            self.statusBar().showMessage(nickName)
         page += 1
         time.sleep(1)
 
@@ -197,6 +198,7 @@ class execute(QThread):
                 fileCreate(serverName, guildName)
                 if fileCreate(serverName, guildName) == False:
                     self.parent.statusBar().showMessage('파일이 이미 존재합니다.')
+                    self.parent.btn_start.setEnabled(True)
                     break
                 for articleIndex in range(10):
                     nowServer = getServer(articleIndex)
@@ -209,7 +211,7 @@ class execute(QThread):
                         driver.switch_to.window(driver.window_handles[-1])
                         driver.implicitly_wait(5)
 
-                        guildCrawl(driver)
+                        guildCrawl(driver,self.parent)
                         time.sleep(0.3)
                         
                         self.parent.statusBar().showMessage('추출하기 완료. '+guildName)
@@ -230,6 +232,10 @@ class execute(QThread):
             self.statusBar().showMessage('추출하기 완료. '+guildName)
             self.parent.btn_start.setEnabled(True)
             break
+        
+    def end(self):
+        self.quit()
+        self.sleep(1)
 
 class WindowClass(QMainWindow, form_class):
 
@@ -254,8 +260,9 @@ class WindowClass(QMainWindow, form_class):
         self.guildMembers_changed.setText('')
         x = execute(self)
         x.start()
+        x.end()
 
-    def fileLoad(self):
+    def fileLoad(self): #파일 불러오기
         global sheet, oldGuildList
         fname = QFileDialog.getOpenFileName(self,'','','Excel(*.xlsx) ;;All File(*)')
         
@@ -304,9 +311,9 @@ class WindowClass(QMainWindow, form_class):
 
         driver.find_element_by_name('search_text').send_keys(guildName)
         driver.find_element_by_xpath('//*[@id="container"]/div/div/div[2]/div/span[1]/span').click()
-        time.sleep(1)
         
         while True:
+            time.sleep(1)
             global articles
 
             nowURL = driver.current_url
