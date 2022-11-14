@@ -36,6 +36,7 @@ def checkLevel(nickname):
     html = BeautifulSoup(raw.text,"html.parser")
     try:
         level = html.select_one("tr.search_com_chk > td:nth-child(3)").text
+        level = level.strip("Lv.")
     except:
         level = "Unknown"
     return level
@@ -45,7 +46,7 @@ def checkEXP(nickname):
     raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
     html = BeautifulSoup(raw.text,"html.parser")
     try:
-        exp = html.select_one("tr.search_com_chk > td:nth-child(4)").text 
+        exp = html.select_one("tr.search_com_chk > td:nth-child(4)").text
     except:
         exp = "Unknown"
     return exp
@@ -53,8 +54,27 @@ def checkEXP(nickname):
 def checkMuLung():
     return
 
-def checkUnion():
-    return
+def checkUnion(nickname):
+    url = 'https://maplestory.nexon.com/Ranking/Union?c='+nickname+'&w=0'
+    raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
+    html = BeautifulSoup(raw.text,"html.parser")
+    try:
+        union = html.select_one("tr.search_com_chk > td:nth-child(3)").text 
+    except:
+        union = "Unknown"
+    return union
+
+def checkPoPularity(nickname):
+    url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname+'&w=0'
+    raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
+    html = BeautifulSoup(raw.text,"html.parser")
+    try:
+        popularity = html.select_one("tr.search_com_chk > td:nth-child(5)").text
+
+    except:
+        popularity = 'Unknown'
+
+    return popularity
 
 def checkGuild(nickname, guildName):
     url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname
@@ -75,8 +95,20 @@ def checkGuildByExcel(nickname,guildName):
 def checkAchievements():
     return
 
-if __name__ == "__main__":
-    typeOfJob, job = checkJob('로하디')
-    print(typeOfJob)
-    print(job)
+def checkForTracker(nickname): #tracker.py 에서 requests 횟수를 줄이기 위해 합침, checkUnion은 따로 호출함
+    url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname+'&w=0'
+    raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
+    html = BeautifulSoup(raw.text,"html.parser")
+    try:
+        job_ = html.select_one("tr.search_com_chk > td.left > dl > dd").text
+        typeOfJob, job = job_.split(' / ')
+        level = html.select_one("tr.search_com_chk > td:nth-child(3)").text
+        level = level.strip("Lv.")
+        exp = html.select_one("tr.search_com_chk > td:nth-child(4)").text
+        popularity = html.select_one("tr.search_com_chk > td:nth-child(5)").text
+
+    except:
+        print('Fail on getting Info')
+
+    return job, level, exp, popularity
 
