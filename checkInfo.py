@@ -17,14 +17,18 @@ import sys, os
 # driver = webdriver.Chrome(options=options, executable_path=driver_path)
 
 def checkJob(nickname):
+    print('checkJob')
     url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname+'&w=0'
     raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
     html = BeautifulSoup(raw.text,"html.parser")
     try:
         job = html.select_one("tr.search_com_chk > td.left > dl > dd").text
+        typeOfJob, job = job.split(' / ')
+
     except:
+        typeOfJob = "Unknown"
         job = "Unknown"
-    return job
+    return typeOfJob, job
 
 def checkLevel(nickname):
     url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname+'&w=0'
@@ -70,4 +74,9 @@ def checkGuildByExcel(nickname,guildName):
 
 def checkAchievements():
     return
+
+if __name__ == "__main__":
+    typeOfJob, job = checkJob('로하디')
+    print(typeOfJob)
+    print(job)
 
