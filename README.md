@@ -1,5 +1,5 @@
-> # <br><br> [다운로드 링크](https://github.com/memoday/guildMemberChecker/releases) <br><br><br>
-
+> # <br><br> [다운로드 링크](https://github.com/memoday/guildMemberChecker/releases) <br><br>
+> ### <br>리부트 월드는 정상 작동하지 않습니다. <br>사용 수가 많을 경우 업데이트 예정입니다.
 
 # Guild Checker
 
