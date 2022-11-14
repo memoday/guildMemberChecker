@@ -16,11 +16,35 @@ import sys, os
 # driver_path = resource_path('chromedriver.exe')
 # driver = webdriver.Chrome(options=options, executable_path=driver_path)
 
-def checkJob():
-    return
+def checkJob(nickname):
+    url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname+'&w=0'
+    raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
+    html = BeautifulSoup(raw.text,"html.parser")
+    try:
+        job = html.select_one("tr.search_com_chk > td.left > dl > dd").text
+    except:
+        job = "Unknown"
+    return job
 
-def checkLevel():
-    return
+def checkLevel(nickname):
+    url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname+'&w=0'
+    raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
+    html = BeautifulSoup(raw.text,"html.parser")
+    try:
+        level = html.select_one("tr.search_com_chk > td:nth-child(3)").text
+    except:
+        level = "Unknown"
+    return level
+
+def checkEXP(nickname):
+    url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname+'&w=0'
+    raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
+    html = BeautifulSoup(raw.text,"html.parser")
+    try:
+        exp = html.select_one("tr.search_com_chk > td:nth-child(4)").text 
+    except:
+        exp = "Unknown"
+    return exp
 
 def checkMuLung():
     return
