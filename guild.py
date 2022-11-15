@@ -137,7 +137,7 @@ def finalCheck(self, guildName):
         changeCount += 1
 
     for i in range(len(guildOut)):
-        time.sleep(0.3)
+        time.sleep(0.5)
         check, newGuild = ci.checkGuild(guildOut[i], guildName)
         if newGuild == '':
             print('[탈퇴]', guildOut[i])

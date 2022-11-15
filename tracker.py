@@ -9,38 +9,36 @@ def tracker(trackingNick, newNickList):
     nickInfoList = []
     maybe = [] #닉변 유력 후보
 
-    union = ci.checkUnion(trackingNick)
-    nickInfoList = ci.checkForTracker(trackingNick)
+    nickInfoList = ci.checkAllGG(trackingNick)
     info = {
         "job" : nickInfoList[0],
         "level" : nickInfoList[1],
-        "exp" : nickInfoList[2],
-        "popularity" : nickInfoList[3],
-        "union" : union
+        "popularity" : nickInfoList[2],
+        "union" : nickInfoList[3],
     }
 
     for i in range(len(newNickList)):
-        check = compare(trackingNick,newNickList[i])
-        if check == 'maybe':
+        check = compare(newNickList[i])
+        if check == 'true':
             maybe.append(newNickList[i])
     
     return maybe
 
-def compare(trackingNick, newNick):
+def compare(newNick):
 
-
-    union2 = ci.checkUnion(newNick)
     nickInfoList2 = ci.checkForTracker(newNick)
     newInfo = {
         "job" : nickInfoList2[0],
         "level" : nickInfoList2[1],
-        "exp" : nickInfoList2[2],
-        "popularity" : nickInfoList2[3],
-        "union" : union2
+        "popularity" : nickInfoList2[2],
+        "union" : nickInfoList2[3],
     }
+    check = 'false'
 
+    if info["job"] == newInfo["job"]:
+        if int(info["level"]) <= int(newInfo["level"]):
+              if int(info["popularity"])-50 <= int(newInfo["popularity"]) <= int(info["popularity"])+50:
+                  if int(info["union"])-200 <= int(newInfo["union"]) <= int(info["union"])+400:
+                    check = 'true'
 
-    return
-
-if __name__ == "__main__":
-    print(tracker('창일'))
+    return check
