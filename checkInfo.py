@@ -134,8 +134,11 @@ def checkForTracker(nickname): #tracker.py 에서 requests 횟수를 줄이기 �
         popularity = html.select_one("tr.search_com_chk > td:nth-child(5)").text
         union = checkUnion(nickname)
 
+    except UnboundLocalError:
+        return 'Not Found'
     except:
-        print('Fail on getting Info')
+        print('Failed on getting Info: '+nickname)
+        return 'Not Found'
 
     return job, level, popularity, union
 
