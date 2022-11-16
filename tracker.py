@@ -1,6 +1,7 @@
 import checkInfo as ci
 import requests
 from bs4 import BeautifulSoup
+import time
 
 def tracker(trackingNick, newNickList):
 
@@ -19,6 +20,8 @@ def tracker(trackingNick, newNickList):
 
     for i in range(len(newNickList)):
         check = compare(newNickList[i])
+        time.sleep(2)
+        
         if check == 'true':
             maybe.append(newNickList[i])
     
@@ -27,22 +30,22 @@ def tracker(trackingNick, newNickList):
 def compare(newNick):
 
     nickInfoList2 = ci.checkForTracker(newNick)
-    newInfo = {
-        "job" : nickInfoList2[0],
-        "level" : nickInfoList2[1],
-        "popularity" : nickInfoList2[2],
-        "union" : nickInfoList2[3],
-    }
-    check = 'false'
+    if nickInfoList2 != 'Not Found':
+        newInfo = {
+            "job" : nickInfoList2[0],
+            "level" : nickInfoList2[1],
+            "popularity" : nickInfoList2[2],
+            "union" : nickInfoList2[3],
+        }
+        check = 'false'
 
-    if info["job"] == newInfo["job"]:
-        if int(info["level"]) <= int(newInfo["level"]):
-              if int(info["popularity"])-50 <= int(newInfo["popularity"]) <= int(info["popularity"])+50:
-                  if int(info["union"])-100 <= int(newInfo["union"]) <= int(info["union"])+200:
-                    check = 'true'
+        if info["job"] == newInfo["job"]:
+            if int(info["level"]) <= int(newInfo["level"]):
+                if int(info["popularity"])-30 <= int(newInfo["popularity"]) <= int(info["popularity"])+50:
+                    if int(info["union"])-100 <= int(newInfo["union"]) <= int(info["union"])+250:
+                        check = 'true'
 
-#유니온 8000이상일 때의 조건 따로 추가, 8000이상 -50, +200
-#제로일 때 인기도 9999 추가
-
-    return check
-
+        return check
+    else:
+        check = 'false'
+        return check
