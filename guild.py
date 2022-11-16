@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import checkInfo as ci
 import chromedriver_autoinstaller
+import tracker as track
 
 chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
 driver_path = f'./{chrome_ver}/chromedriver.exe'
@@ -23,7 +24,7 @@ else:
 options = webdriver.ChromeOptions()
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
 options.add_argument('User-Agent= Mozilla/5.0')
-options.add_argument('headless') #크롬창 표시 금지
+# options.add_argument('headless') #크롬창 표시 금지
 
 
 def resource_path(relative_path):
@@ -74,6 +75,7 @@ def tempGuildCrawl(driver):
 
     global guildlist
     guildlist = []
+
 
     while True:
 
@@ -130,14 +132,18 @@ def finalCheck(self, guildName):
     guildIn = list(set1 - set2)
     guildOut = list(set2 - set1)
 
+    newList = []
+    trackList = []
+
     for i in range(len(guildIn)):
         print('[신규]',guildIn[i])
         changed = ('[신규] '+guildIn[i])
         self.guildMembers_changed.append(changed)
+        newList.append(guildIn[i])
         changeCount += 1
 
     for i in range(len(guildOut)):
-        time.sleep(0.5)
+        time.sleep(1)
         check, newGuild = ci.checkGuild(guildOut[i], guildName)
         if newGuild == '':
             print('[탈퇴]', guildOut[i])
@@ -145,15 +151,25 @@ def finalCheck(self, guildName):
             self.guildMembers_changed.append(changed)
             changeCount += 1
         elif newGuild == guildName:
-            print('[닉변/캐삭]',guildOut[i])
-            changed = ('[닉변/캐삭] '+guildOut[i])
-            self.guildMembers_changed.append(changed)
+            # print('[닉변/캐삭]',guildOut[i])
+            # changed = ('[닉변/캐삭] '+guildOut[i])
+            # self.guildMembers_changed.append(changed)
+            trackList.append(guildOut[i])
             changeCount += 1
         else:
             print('[이전]', guildOut[i],'-> ',newGuild)
             changed = ('[이전] '+guildOut[i]+' -> '+newGuild)
             self.guildMembers_changed.append(changed)
             changeCount += 1
+    
+    for i in range(len(trackList)):
+
+        print('trackList: '+trackList[i])
+        print('newList: '+newList[i])
+
+        changed_to = track(trackList[i],newList)
+        print("changed_to",changed_to)
+        
     self.changeCount.setText(str(changeCount)+' 명')
 
 class execute(QThread):
