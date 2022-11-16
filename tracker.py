@@ -38,7 +38,11 @@ def compare(newNick):
     if info["job"] == newInfo["job"]:
         if int(info["level"]) <= int(newInfo["level"]):
               if int(info["popularity"])-50 <= int(newInfo["popularity"]) <= int(info["popularity"])+50:
-                  if int(info["union"])-200 <= int(newInfo["union"]) <= int(info["union"])+400:
+                  if int(info["union"])-100 <= int(newInfo["union"]) <= int(info["union"])+200:
                     check = 'true'
 
+#유니온 8000이상일 때의 조건 따로 추가, 8000이상 -50, +200
+#제로일 때 인기도 9999 추가
+
     return check
+
