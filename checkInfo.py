@@ -63,7 +63,7 @@ def checkUnion(nickname):
         union_ = html.select_one("tr.search_com_chk > td:nth-child(3)").text 
         union = union_.replace(',',"")
     except:
-        union = "Unknown"
+        union = "0"
     return union
 
 def checkPoPularity(nickname):
@@ -111,13 +111,18 @@ def checkAllGG(nickname):
         level = re.sub(to_clean,'',level)
 
         popularity = html.select_one('#user-profile > section > div.row.row-normal > div.col-lg-8 > div.user-summary > ul > li:nth-child(3) > span:nth-child(2)').text
-
-        union_ = html.select_one('#app > div.card.border-bottom-0 > div > section > div.row.text-center > div:nth-child(3) > section > div > div > span').text
-        union = union_.strip("Lv.")
-
     
     except:
-        return 'Error'
+        print('Failed on getting Info: '+nickname)
+        return 'Not Found'
+
+    try:
+        union_ = html.select_one('#app > div.card.border-bottom-0 > div > section > div.row.text-center > div:nth-child(3) > section > div > div > span').text
+        union = union_.strip("Lv.")
+    except:
+        union = '0'
+
+
 
     return job, level,popularity, union
     
@@ -141,4 +146,8 @@ def checkForTracker(nickname): #tracker.py 에서 requests 횟수를 줄이기 �
         return 'Not Found'
 
     return job, level, popularity, union
+
+if __name__ == "__main__":
+    x = checkAllGG('성갈')
+    print(x)
 
