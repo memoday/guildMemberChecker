@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
 from selenium import webdriver
-import sys, os
 import re
 
 # options = webdriver.ChromeOptions()
@@ -93,9 +92,6 @@ def checkGuild(nickname, guildName):
     except AttributeError:
         return True, guildName
 
-def checkGuildByExcel(nickname,guildName):
-    return
-
 def checkAchievements():
     return
 
@@ -125,11 +121,8 @@ def checkAllGG(nickname):
     except:
         union = '0'
 
-
-
     return job, level,popularity, union
     
-
 def checkForTracker(nickname): #tracker.py 에서 requests 횟수를 줄이기 위해 합침, checkUnion은 따로 호출함
     url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname+'&w=0'
     raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
@@ -149,8 +142,3 @@ def checkForTracker(nickname): #tracker.py 에서 requests 횟수를 줄이기 �
         return 'Not Found'
 
     return job, level, popularity, union
-
-if __name__ == "__main__":
-    x = checkAllGG('돈찬')
-    print(x)
-

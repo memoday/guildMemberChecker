@@ -1,7 +1,4 @@
 import checkInfo as ci
-import requests
-from bs4 import BeautifulSoup
-import time
 
 def tracker(trackNick, newNickList):
 

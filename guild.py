@@ -14,7 +14,13 @@ import chromedriver_autoinstaller
 import tracker as track
 import webbrowser
 
-__version__ = "v1.3.0"
+__version__ = "v1.3.0"  
+
+latest_url = "https://api.github.com/repos/memoday/guildMemberChecker/releases/latest"
+gitAPI = requests.get(latest_url).json()
+print('Now version: '+__version__)
+print('Latest Version: '+gitAPI['tag_name'])
+__latest_version__ = gitAPI['tag_name']
 
 chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
 driver_path = f'./{chrome_ver}/chromedriver.exe'
@@ -268,6 +274,8 @@ class WindowClass(QMainWindow, form_class):
         self.setWindowIcon(QIcon(icon))
         self.setWindowTitle('Guild Checker')
         self.statusBar().showMessage('프로그램 정상 구동 중')
+        self.label_version.setText('현재버전 '+__version__)
+        self.label_latestVersion.setText('최신버전 '+__latest_version__)
 
         #실행 후 기본값 설정
 
