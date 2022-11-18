@@ -40,9 +40,9 @@ def compare(newNick):
 
     if trackingNickInfo["job"] == newNickInfo["job"]:
         if int(trackingNickInfo["level"]) <= int(newNickInfo["level"]):
-            if int(trackingNickInfo["popularity"])-30 <= int(newNickInfo["popularity"]) <= int(trackingNickInfo["popularity"])+50:
+            if int(trackingNickInfo["popularity"])-30 <= int(newNickInfo["popularity"]) <= int(trackingNickInfo["popularity"])+100:
                 if trackingNickInfo['union'] == '0':
-                    if int(trackingNickInfo["popularity"])-10 <= int(newNickInfo["popularity"]) <= int(trackingNickInfo["popularity"])+30:
+                    if int(trackingNickInfo["popularity"])-10 <= int(newNickInfo["popularity"]) <= int(trackingNickInfo["popularity"])+50:
                         check = 'true'
                 elif int(trackingNickInfo["union"])-100 <= int(newNickInfo["union"]) <= int(trackingNickInfo["union"])+250:
                     check = 'true'

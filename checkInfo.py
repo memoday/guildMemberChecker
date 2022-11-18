@@ -39,7 +39,7 @@ def checkLevel(nickname):
         level = html.select_one("tr.search_com_chk > td:nth-child(3)").text
         level = level.strip("Lv.")
     except:
-        level = "Unknown"
+        level = "0"
     return level
 
 def checkEXP(nickname):
@@ -47,9 +47,10 @@ def checkEXP(nickname):
     raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
     html = BeautifulSoup(raw.text,"html.parser")
     try:
-        exp = html.select_one("tr.search_com_chk > td:nth-child(4)").text
+        exp_ = html.select_one("tr.search_com_chk > td:nth-child(4)").text
+        exp = exp_.replace(',','')
     except:
-        exp = "Unknown"
+        exp = "0"
     return exp
 
 def checkMuLung():
@@ -71,10 +72,11 @@ def checkPoPularity(nickname):
     raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
     html = BeautifulSoup(raw.text,"html.parser")
     try:
-        popularity = html.select_one("tr.search_com_chk > td:nth-child(5)").text
+        popularity_ = html.select_one("tr.search_com_chk > td:nth-child(5)").text
+        popularity = popularity_.replace(',','')
 
     except:
-        popularity = 'Unknown'
+        popularity = '0'
 
     return popularity
 
@@ -110,7 +112,8 @@ def checkAllGG(nickname):
         to_clean = re.compile(r'\([^)]*\)')
         level = re.sub(to_clean,'',level)
 
-        popularity = html.select_one('#user-profile > section > div.row.row-normal > div.col-lg-8 > div.user-summary > ul > li:nth-child(3) > span:nth-child(2)').text
+        popularity_ = html.select_one('#user-profile > section > div.row.row-normal > div.col-lg-8 > div.user-summary > ul > li:nth-child(3) > span:nth-child(2)').text
+        popularity = popularity_.replace(',','')
     
     except:
         print('Failed on getting Info: '+nickname)
@@ -148,6 +151,6 @@ def checkForTracker(nickname): #tracker.py 에서 requests 횟수를 줄이기 �
     return job, level, popularity, union
 
 if __name__ == "__main__":
-    x = checkAllGG('성갈')
+    x = checkAllGG('돈찬')
     print(x)
 

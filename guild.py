@@ -12,6 +12,9 @@ from PyQt5.QtCore import *
 import checkInfo as ci
 import chromedriver_autoinstaller
 import tracker as track
+import webbrowser
+
+__version__ = "v1.3.0"
 
 chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
 driver_path = f'./{chrome_ver}/chromedriver.exe'
@@ -273,6 +276,7 @@ class WindowClass(QMainWindow, form_class):
         self.btn_exit.clicked.connect(self.exit)
         self.btn_load.clicked.connect(self.fileLoad)
         self.btn_check.clicked.connect(self.checkInfo)
+        self.btn_github.clicked.connect(self.github)
     
     def main(self):
         self.guildMembers_changed.setText('')
@@ -375,6 +379,9 @@ class WindowClass(QMainWindow, form_class):
             finalCheck(self, guildName)
             self.statusBar().showMessage('변동사항 확인 완료. '+guildName)
             driver.quit()
+
+    def github(self):
+        webbrowser.open_new_tab('https://github.com/memoday/guildMemberChecker/releases')
 
     def exit(self):
         os.system("taskkill /f /im chromedriver.exe") #chomrdriver.exe 강제종료
