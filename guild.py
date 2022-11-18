@@ -24,7 +24,7 @@ else:
 options = webdriver.ChromeOptions()
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
 options.add_argument('User-Agent= Mozilla/5.0')
-# options.add_argument('headless') #크롬창 표시 금지
+options.add_argument('headless') #크롬창 표시 금지
 
 
 def resource_path(relative_path):
@@ -161,14 +161,20 @@ def finalCheck(self, guildName):
             changed = ('[이전] '+guildOut[i]+' -> '+newGuild)
             self.guildMembers_changed.append(changed)
             changeCount += 1
-    
+
+
     for i in range(len(trackList)):
 
-        print('trackList: '+trackList[i])
-        print('newList: '+newList[i])
+        changed_to = track.tracker(trackList[i],newList)
 
-        changed_to = track(trackList[i],newList)
-        print("changed_to",changed_to)
+        if len(changed_to) > 0:
+            result = '/'.join(changed_to)
+            changed = '[닉변]'+trackList[i]+' -> '+result
+            self.guildMembers_changed.append(changed)
+
+        else:
+            changed = ('[삭제]'+trackList[i])
+            self.guildMembers_changed.append(changed)
         
     self.changeCount.setText(str(changeCount)+' 명')
 
