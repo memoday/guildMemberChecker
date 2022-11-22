@@ -152,7 +152,7 @@ def finalCheck(self, guildName):
         changeCount += 1
 
     for i in range(len(guildOut)):
-        time.sleep(1)
+        time.sleep(0.3)
         check, newGuild = ci.checkGuild(guildOut[i], guildName)
         if newGuild == '':
             print('[탈퇴]', guildOut[i])
@@ -171,19 +171,27 @@ def finalCheck(self, guildName):
             self.guildMembers_changed.append(changed)
             changeCount += 1
 
+    nickChangeResult = []
+    unverifiedResult = []
 
-    for i in range(len(trackList)):
+    for i in range(len(trackList)): #닉변 확인
 
         changed_to = track.tracker(trackList[i],newList)
 
         if len(changed_to) > 0:
             result = '/'.join(changed_to)
             changed = '[닉변]'+trackList[i]+' -> '+result
-            self.guildMembers_changed.append(changed)
+            nickChangeResult.append(changed)
 
         else:
-            changed = ('[삭제]'+trackList[i])
-            self.guildMembers_changed.append(changed)
+            changed = ('[확인불가]'+trackList[i])
+            unverifiedResult.append(changed)
+    
+    for i in range(len(nickChangeResult)):
+        self.guildMembers_changed.append(nickChangeResult[i])
+    
+    for i in range(len(unverifiedResult)):
+        self.guildMembers_changed.append(unverifiedResult[i])
         
     self.changeCount.setText(str(changeCount)+' 명')
 
@@ -195,6 +203,7 @@ class execute(QThread):
     def run(self):
 
         self.parent.btn_start.setDisabled(True)
+        self.parent.statusBar().showMessage('길드원 추출 준비 중..')
 
         serverName = str(self.parent.combo_serverName.currentText())
         print(serverName)

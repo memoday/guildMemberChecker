@@ -415,7 +415,7 @@
     </font>
    </property>
    <property name="text">
-    <string>*변동사항 양에 따라 최대 5분 소요됩니다.</string>
+    <string>*변동사항 양에 따라 최대 3분 소요됩니다.</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btn_github">
