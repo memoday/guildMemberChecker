@@ -14,7 +14,7 @@ import chromedriver_autoinstaller
 import tracker as track
 import webbrowser
 
-__version__ = "v1.3.0"  
+__version__ = "v1.3.1"  
 
 latest_url = "https://api.github.com/repos/memoday/guildMemberChecker/releases/latest"
 gitAPI = requests.get(latest_url).json()
@@ -143,6 +143,9 @@ def finalCheck(self, guildName):
 
     newList = []
     trackList = []
+    leaveList = []
+    transferList = []
+
 
     for i in range(len(guildIn)):
         print('[신규]',guildIn[i])
@@ -157,7 +160,7 @@ def finalCheck(self, guildName):
         if newGuild == '':
             print('[탈퇴]', guildOut[i])
             changed = ('[탈퇴] '+guildOut[i])
-            self.guildMembers_changed.append(changed)
+            leaveList.append(changed)
             changeCount += 1
         elif newGuild == guildName:
             # print('[닉변/캐삭]',guildOut[i])
@@ -168,8 +171,14 @@ def finalCheck(self, guildName):
         else:
             print('[이전]', guildOut[i],'-> ',newGuild)
             changed = ('[이전] '+guildOut[i]+' -> '+newGuild)
-            self.guildMembers_changed.append(changed)
+            transferList.append(changed)
             changeCount += 1
+
+    for i in range(len(leaveList)):
+        self.guildMembers_changed.append(leaveList[i])
+    
+    for i in range(len(transferList)):
+        self.guildMembers_changed.append(transferList[i])
 
     nickChangeResult = []
     unverifiedResult = []
@@ -281,9 +290,8 @@ class WindowClass(QMainWindow, form_class):
 
         #프로그램 기본설정
         self.setWindowIcon(QIcon(icon))
-        self.setWindowTitle('Guild Checker')
+        self.setWindowTitle('Guild Checker '+__version__)
         self.statusBar().showMessage('프로그램 정상 구동 중')
-        self.label_version.setText('현재버전 '+__version__)
         self.label_latestVersion.setText('최신버전 '+__latest_version__)
 
         #실행 후 기본값 설정
@@ -390,7 +398,6 @@ class WindowClass(QMainWindow, form_class):
             except TimeoutError:
                 self.statusBar().showMessage('TimeoutError')
             finally:
-                driver.close()
                 driver.quit()
             
             finalCheck(self, guildName)
@@ -401,6 +408,10 @@ class WindowClass(QMainWindow, form_class):
         webbrowser.open_new_tab('https://github.com/memoday/guildMemberChecker/releases')
 
     def exit(self):
+        os.system("taskkill /f /im chromedriver.exe") #chomrdriver.exe 강제종료
+        sys.exit(0)
+
+    def closeEvent(self, event):
         os.system("taskkill /f /im chromedriver.exe") #chomrdriver.exe 강제종료
         sys.exit(0)
 
