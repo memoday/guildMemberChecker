@@ -376,7 +376,7 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>380</x>
+     <x>390</x>
      <y>40</y>
      <width>271</width>
      <height>16</height>
@@ -384,7 +384,7 @@
    </property>
    <property name="font">
     <font>
-     <family>맑은 고딕</family>
+     <family>굴림</family>
      <pointsize>8</pointsize>
     </font>
    </property>
@@ -395,7 +395,7 @@
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>380</x>
+     <x>390</x>
      <y>60</y>
      <width>271</width>
      <height>16</height>
@@ -403,7 +403,7 @@
    </property>
    <property name="font">
     <font>
-     <family>맑은 고딕</family>
+     <family>굴림</family>
      <pointsize>8</pointsize>
     </font>
    </property>
@@ -414,7 +414,7 @@
   <widget class="QLabel" name="label_7">
    <property name="geometry">
     <rect>
-     <x>380</x>
+     <x>390</x>
      <y>80</y>
      <width>271</width>
      <height>16</height>
@@ -422,7 +422,7 @@
    </property>
    <property name="font">
     <font>
-     <family>맑은 고딕</family>
+     <family>굴림</family>
      <pointsize>8</pointsize>
     </font>
    </property>
