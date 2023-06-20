@@ -1,5 +1,6 @@
 import time
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 import os, sys
 import requests
 from bs4 import BeautifulSoup
@@ -15,6 +16,11 @@ import tracker as track
 import webbrowser
 
 __version__ = "v1.3.1"  
+
+header = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Whale/3.18.154.13 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+}
 
 latest_url = "https://api.github.com/repos/memoday/guildMemberChecker/releases/latest"
 gitAPI = requests.get(latest_url).json()
@@ -89,7 +95,7 @@ def tempGuildCrawl(driver):
     while True:
 
         newURL = nowURL+'&orderby=0&page='+str(page)+''
-        raw = requests.get(newURL,headers={'User-Agent':'Mozilla/5.0'})
+        raw = requests.get(newURL,headers=header)
         html = BeautifulSoup(raw.text,"html.parser")   
         members = html.select('#container > div > div > table > tbody > tr')
         
@@ -111,7 +117,7 @@ def guildCrawl(driver,self):
     while True:
 
         newURL = nowURL+'&orderby=0&page='+str(page)+''
-        raw = requests.get(newURL,headers={'User-Agent':'Mozilla/5.0'})
+        raw = requests.get(newURL,headers=header)
         html = BeautifulSoup(raw.text,"html.parser")   
         members = html.select('#container > div > div > table > tbody > tr')
         
@@ -153,6 +159,7 @@ def finalCheck(self, guildName):
         self.guildMembers_changed.append(changed)
         newList.append(guildIn[i])
         changeCount += 1
+
 
     for i in range(len(guildOut)):
         time.sleep(0.3)
@@ -229,15 +236,15 @@ class execute(QThread):
         except TimeoutError:
             self.parent.statusBar().showMessage('TimeoutError')
 
-        driver.find_element_by_name('search_text').send_keys(guildName)
-        driver.find_element_by_xpath('//*[@id="container"]/div/div/div[2]/div/span[1]/span').click()
+        driver.find_element(By.NAME, 'search_text').send_keys(guildName)
+        driver.find_element(By.XPATH, '//*[@id="container"]/div/div/div[2]/div/span[1]/span').click()
         time.sleep(1)
 
         while True:
             global articles
 
             nowURL = driver.current_url
-            raw = requests.get(nowURL,headers={'User-Agent':'Mozilla/5.0'})
+            raw = requests.get(nowURL,headers=header)
             html = BeautifulSoup(raw.text,"html.parser")
 
             articles = html.select("#container > div > div > div:nth-child(4) > div.rank_table_wrap > table > tbody > tr")
@@ -252,7 +259,7 @@ class execute(QThread):
                     if 'icon_'+str(checkServer(serverName))+'' in nowServer:
                         driver.implicitly_wait(5)
 
-                        driver.find_element_by_xpath('//*[@id="container"]/div/div/div[3]/div[1]/table/tbody/tr['+str(articleIndex+1)+']/td[2]/span/a').click()
+                        driver.find_element(By.XPATH, '//*[@id="container"]/div/div/div[3]/div[1]/table/tbody/tr[' + str(articleIndex+1) + ']/td[2]/span/a').click()
                         driver.implicitly_wait(5)
 
                         driver.switch_to.window(driver.window_handles[-1])
@@ -360,15 +367,16 @@ class WindowClass(QMainWindow, form_class):
         except TimeoutError:
             self.statusBar().showMessage('TimeoutError')
 
-        driver.find_element_by_name('search_text').send_keys(guildName)
-        driver.find_element_by_xpath('//*[@id="container"]/div/div/div[2]/div/span[1]/span').click()
+        driver.find_element(By.NAME, 'search_text').send_keys(guildName)
+        driver.find_element(By.XPATH, '//*[@id="container"]/div/div/div[2]/div/span[1]/span').click()
+
         
         while True:
             time.sleep(1)
             global articles
 
             nowURL = driver.current_url
-            raw = requests.get(nowURL,headers={'User-Agent':'Mozilla/5.0'})
+            raw = requests.get(nowURL,headers=header)
             html = BeautifulSoup(raw.text,"html.parser")
 
             articles = html.select("#container > div > div > div:nth-child(4) > div.rank_table_wrap > table > tbody > tr")
@@ -379,7 +387,7 @@ class WindowClass(QMainWindow, form_class):
                     if 'icon_'+str(checkServer(serverName))+'' in nowServer:
                         driver.implicitly_wait(5)
 
-                        driver.find_element_by_xpath('//*[@id="container"]/div/div/div[3]/div[1]/table/tbody/tr['+str(articleIndex+1)+']/td[2]/span/a').click()
+                        driver.find_element(By.XPATH, '//*[@id="container"]/div/div/div[3]/div[1]/table/tbody/tr[' + str(articleIndex+1) + ']/td[2]/span/a').click()
                         driver.implicitly_wait(5)
 
                         driver.switch_to.window(driver.window_handles[-1])
