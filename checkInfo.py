@@ -16,10 +16,15 @@ import re
 # driver_path = resource_path('chromedriver.exe')
 # driver = webdriver.Chrome(options=options, executable_path=driver_path)
 
+header = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Whale/3.18.154.13 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+}
+
 def checkJob(nickname):
     print('checkJob')
     url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname+'&w=0'
-    raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
+    raw = requests.get(url,headers=header)
     html = BeautifulSoup(raw.text,"html.parser")
     try:
         job = html.select_one("tr.search_com_chk > td.left > dl > dd").text
@@ -32,7 +37,7 @@ def checkJob(nickname):
 
 def checkLevel(nickname):
     url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname+'&w=0'
-    raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
+    raw = requests.get(url,headers=header)
     html = BeautifulSoup(raw.text,"html.parser")
     try:
         level = html.select_one("tr.search_com_chk > td:nth-child(3)").text
@@ -43,7 +48,7 @@ def checkLevel(nickname):
 
 def checkEXP(nickname):
     url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname+'&w=0'
-    raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
+    raw = requests.get(url,headers=header)
     html = BeautifulSoup(raw.text,"html.parser")
     try:
         exp_ = html.select_one("tr.search_com_chk > td:nth-child(4)").text
@@ -57,7 +62,7 @@ def checkMuLung():
 
 def checkUnion(nickname):
     url = 'https://maplestory.nexon.com/Ranking/Union?c='+nickname+'&w=0'
-    raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
+    raw = requests.get(url,headers=header)
     html = BeautifulSoup(raw.text,"html.parser")
     try:
         union_ = html.select_one("tr.search_com_chk > td:nth-child(3)").text 
@@ -68,7 +73,7 @@ def checkUnion(nickname):
 
 def checkPoPularity(nickname):
     url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname+'&w=0'
-    raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
+    raw = requests.get(url,headers=header)
     html = BeautifulSoup(raw.text,"html.parser")
     try:
         popularity_ = html.select_one("tr.search_com_chk > td:nth-child(5)").text
@@ -81,7 +86,7 @@ def checkPoPularity(nickname):
 
 def checkGuild(nickname, guildName):
     url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname
-    raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
+    raw = requests.get(url,headers=header)
     html = BeautifulSoup(raw.text,"html.parser")
     try:
         newGuild = html.select_one("tr.search_com_chk > td:nth-child(6)").text
@@ -97,7 +102,7 @@ def checkAchievements():
 
 def checkAllGG(nickname):
     url = 'https://maple.gg/u/'+nickname
-    raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
+    raw = requests.get(url,headers=header)
     html = BeautifulSoup(raw.text,"html.parser")
     try:
 
@@ -125,7 +130,7 @@ def checkAllGG(nickname):
     
 def checkForTracker(nickname): #tracker.py 에서 requests 횟수를 줄이기 위해 합침, checkUnion은 따로 호출함
     url = 'https://maplestory.nexon.com/Ranking/World/Total?c='+nickname+'&w=0'
-    raw = requests.get(url,headers={'User-Agent':'Mozilla/5.0'})
+    raw = requests.get(url,headers=header)
     html = BeautifulSoup(raw.text,"html.parser")
     try:
         job_ = html.select_one("tr.search_com_chk > td.left > dl > dd").text

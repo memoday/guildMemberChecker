@@ -15,7 +15,7 @@ import chromedriver_autoinstaller
 import tracker as track
 import webbrowser
 
-__version__ = "v1.3.1"  
+__version__ = "v1.3.1"
 
 header = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Whale/3.18.154.13 Safari/537.36",
@@ -148,7 +148,8 @@ def finalCheck(self, guildName):
     guildOut = list(set2 - set1)
 
     newList = []
-    trackList = []
+    trackList = [] #닉변 추적 기능 임시 비활성화, 기존 길드 = 변경 길드 일 경우 찾을 수 없음으로 표기
+    errorList = [] #기존 trackList를 errorList로 옮김
     leaveList = []
     transferList = []
 
@@ -173,7 +174,8 @@ def finalCheck(self, guildName):
             # print('[닉변/캐삭]',guildOut[i])
             # changed = ('[닉변/캐삭] '+guildOut[i])
             # self.guildMembers_changed.append(changed)
-            trackList.append(guildOut[i])
+            notFound = ('[확인불가] '+guildOut[i])
+            errorList.append(notFound)
             changeCount += 1
         else:
             print('[이전]', guildOut[i],'-> ',newGuild)
@@ -202,6 +204,9 @@ def finalCheck(self, guildName):
         else:
             changed = ('[확인불가]'+trackList[i])
             unverifiedResult.append(changed)
+
+    for i in range(len(errorList)):
+        self.guildMembers_changed.append(errorList[i])
     
     for i in range(len(nickChangeResult)):
         self.guildMembers_changed.append(nickChangeResult[i])
@@ -233,8 +238,8 @@ class execute(QThread):
 
         try:
             driver.get("https://maplestory.nexon.com/Ranking/World/Guild")
-        except TimeoutError:
-            self.parent.statusBar().showMessage('TimeoutError')
+        except Exception as e:
+            self.parent.statusBar().showMessage(f'[ERROR] {e}')
 
         driver.find_element(By.NAME, 'search_text').send_keys(guildName)
         driver.find_element(By.XPATH, '//*[@id="container"]/div/div/div[2]/div/span[1]/span').click()
