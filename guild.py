@@ -34,7 +34,7 @@ if os.path.exists(driver_path):
     print(f"chromedriver is installed: {driver_path}")
 else:
     print('installing chromedriver')
-    chromedriver_autoinstaller.install(cwd=True) #chromedriver 크롬 버전에 맞춰 설치
+    chromedriver_autoinstaller.install(cwd=True)
 
 options = webdriver.ChromeOptions()
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
