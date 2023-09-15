@@ -1,6 +1,7 @@
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
 import os, sys
 import requests
 from bs4 import BeautifulSoup
@@ -11,11 +12,10 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import checkInfo as ci
-import chromedriver_autoinstaller
 import tracker as track
 import webbrowser
 
-__version__ = "v1.3.1"
+__version__ = "v1.3.2"
 
 header = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Whale/3.18.154.13 Safari/537.36",
@@ -28,13 +28,15 @@ print('Now version: '+__version__)
 print('Latest Version: '+gitAPI['tag_name'])
 __latest_version__ = gitAPI['tag_name']
 
-chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
-driver_path = f'./{chrome_ver}/chromedriver.exe'
-if os.path.exists(driver_path):
-    print(f"chromedriver is installed: {driver_path}")
-else:
-    print('installing chromedriver')
-    chromedriver_autoinstaller.install(cwd=True) #chromedriver 크롬 버전에 맞춰 설치
+# chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
+# driver_path = f'./{chrome_ver}/chromedriver.exe'
+# if os.path.exists(driver_path):
+#     print(f"chromedriver is installed: {driver_path}")
+# else:
+#     print('installing chromedriver')
+#     chromedriver_autoinstaller.install(cwd=True) #chromedriver 크롬 버전에 맞춰 설치
+
+service = Service()
 
 options = webdriver.ChromeOptions()
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
@@ -234,7 +236,7 @@ class execute(QThread):
             self.parent.statusBar().showMessage('추출하기: 길드 이름을 입력해주세요')
             return
 
-        driver = webdriver.Chrome(options=options, executable_path=driver_path)
+        driver = webdriver.Chrome(options=options)
 
         try:
             driver.get("https://maplestory.nexon.com/Ranking/World/Guild")
@@ -365,7 +367,7 @@ class WindowClass(QMainWindow, form_class):
             self.statusBar().showMessage('변동사항확인: 길드 이름을 입력해주세요')
             return
 
-        driver = webdriver.Chrome(options=options, executable_path=driver_path)
+        driver = webdriver.Chrome(options=options)
 
         try:
             driver.get("https://maplestory.nexon.com/Ranking/World/Guild")
