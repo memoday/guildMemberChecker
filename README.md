@@ -1,5 +1,7 @@
-> # <br><br> [다운로드 링크](https://github.com/memoday/guildMemberChecker/releases) <br><br>
-> ### <br>리부트 월드는 정상 작동하지 않습니다. <br>사용 수가 많을 경우 업데이트 예정입니다.
+## <br><br> 2023.09.20 업데이트 공지
+### - 느린 속도, 프리징 현상 등 불편했던 경험이 99%이상 개선된 V2버전으로 옮겼습니다.
+### [Guild Checker V2](https://github.com/memoday/guildChecker2) <br><br>
+
 
 # Guild Checker
 
